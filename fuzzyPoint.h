@@ -83,6 +83,32 @@ void printtabs(int level){
     }
 }
 
+// Just a basic function to init centroids
+// basically set everything to do with them to 0
+void initCentroids(FuzzyPoint *centroids){
+    for(int i = 0 ; i < NUMCLUSTER ; i++){
+        for(int j = 0 ; j < DIMENSIONS ; j++){
+            centroids[i].values[j] = 0;
+            centroids[i].cluster[j] = 0;
+        }
+    }
+}
+
+void calculateCentroids(FuzzyPoint *centroids, FuzzyPoint *data, int numPoints){
+    for(int i = 0 ; i < NUMCLUSTER ; i++){
+        for(int j = 0 ; j < DIMENSIONS; j++){
+            float tempProb = 0.0f;
+            float tempVal = 0.0f;
+            for(int k = 0 ; k < numPoints ; k++){
+                float prob = data[k].cluster[j];
+                tempProb += prob;
+                tempVal += prob * data[k].values[j];
+            }
+            centroids[i].values[j] = tempVal / tempProb;
+        }
+    }
+}
+
 // changed the print function so that it can show the cluster assignment
 void printPoint(FuzzyPoint x){
     printf("Cluster Values: ");

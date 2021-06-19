@@ -7,7 +7,12 @@
 void testFuzzy();
 
 int main(){
-    testFuzzy();
+    // testFuzzy();
+    FuzzyPoint *centroids = (FuzzyPoint *)malloc(NUMCLUSTER * sizeof(FuzzyPoint));
+
+
+
+    free(centroids);
     return 0;
 }
 

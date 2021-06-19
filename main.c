@@ -19,6 +19,10 @@ int main(){
     }
     printCentroids(kPoints);
     // printDataPoints(data, NUMPOINTS);
+
+
+    free(kPoints);
+    free(data);
     return 0;
 }
 
