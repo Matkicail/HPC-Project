@@ -76,6 +76,12 @@ void initPoint(FuzzyPoint *x){
     randomValues(x);
 }
 
+void initFuzzyPoints(FuzzyPoint *data, int num){
+    for(int i = 0 ; i < num ; i++){
+        initPoint(&data[i]);
+    }
+}
+
 // I just like the printtabs function as output looks better
 void printtabs(int level){
     for(int i = 0 ; i < level ; i++){
@@ -93,7 +99,7 @@ void initCentroids(FuzzyPoint *centroids){
         }
     }
 }
-
+// Currently not working
 void calculateCentroids(FuzzyPoint *centroids, FuzzyPoint *data, int numPoints){
     for(int i = 0 ; i < NUMCLUSTER ; i++){
         for(int j = 0 ; j < DIMENSIONS; j++){
@@ -133,6 +139,12 @@ void printPoint(FuzzyPoint x){
         }
     }
     printf("\n");
+}
+
+void printFuzzyPoints(FuzzyPoint *x, int num){
+    for(int i = 0 ; i < num ; i++){
+        printPoint(x[i]);
+    }
 }
 
 
