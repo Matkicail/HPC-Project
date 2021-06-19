@@ -4,7 +4,14 @@
 #include <string.h>
 #include "fuzzyMeans.h"
 
+void testFuzzy();
+
 int main(){
+    testFuzzy();
+    return 0;
+}
+
+void testFuzzy(){
     FuzzyPoint x,y,z;
     initPoint(&x);
     initPoint(&y);
@@ -12,5 +19,4 @@ int main(){
     printPoint(x);
     printPoint(y);
     printPoint(z);
-    return 0;
 }

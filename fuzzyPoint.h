@@ -76,6 +76,14 @@ void initPoint(FuzzyPoint *x){
     randomValues(x);
 }
 
+// I just like the printtabs function as output looks better
+void printtabs(int level){
+    for(int i = 0 ; i < level ; i++){
+        printf("\t");
+    }
+}
+
+// changed the print function so that it can show the cluster assignment
 void printPoint(FuzzyPoint x){
     printf("Cluster Values: ");
     for(int i = 0 ; i < NUMCLUSTER ; i++){
@@ -87,7 +95,9 @@ void printPoint(FuzzyPoint x){
         }
     }
     printf("\n");
+    printtabs(1);
     printf("Values:");
+    
     for(int i = 0 ; i < DIMENSIONS ; i++){
         if(i != DIMENSIONS -1){
             printf(" %f,",x.values[i]);
