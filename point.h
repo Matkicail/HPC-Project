@@ -53,9 +53,7 @@ void assignCluster(Point *x, int cluster){
     x->cluster = cluster;
 }
 
-// Here I chose to use Minkowski distance for maximum flex
-// Basically it is like Euclidean mixed with manhattan
-// https://en.wikipedia.org/wiki/Minkowski_distance
+// Basically it is like Euclidean
 float pointDistance(Point x, Point y){
     float dist = 0;
     for(int i = 0; i < DIMENSIONS; i++){
