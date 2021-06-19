@@ -9,6 +9,10 @@
 // basically given a malloced array init the points for clustering
 #define NUMPOINTS 200000
 #define ITTERATIONS 10
+
+// A note here that should be given attention, this is not selecting a random point to turn into a centre.
+// Rather it generates an entirely new point that will be considered a new point.
+// This point is generated using the exact same criteria as the other points. It is just chosen as the basis of a cluster.
 void initKPoints(Point *kPoints){
     for(int i = 0; i < NUMCLUSTER ; i++){
         initPoint(&kPoints[i]);
