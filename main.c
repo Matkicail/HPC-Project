@@ -11,12 +11,14 @@ int main(){
     
     Point *kPoints = (Point *)malloc(NUMCLUSTER * sizeof(Point));
     initKPoints(kPoints);
+    printCentroids(kPoints);
     Point *data = (Point *)malloc(NUMPOINTS * sizeof(Point));
     initDataPoints(data);
     for(int i = 0 ; i < ITTERATIONS ; i++){
         assignDataCluster(kPoints, data);
     }
-    printf("death \n");
+    printCentroids(kPoints);
+    printDataPoints(data, NUMPOINTS);
     return 0;
 }
 
@@ -30,3 +32,4 @@ void testPoints(){
     printf("Distance %f \n",pointDistance(x,y));
     return;
 }
+

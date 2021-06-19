@@ -75,6 +75,10 @@ void initDataPoints(Point *data){
     }
 }
 
-
+void printCentroids(Point *kPoints){
+    int level = 1;
+    printf("Printing centroids \n");
+    printAllPoints(kPoints, level, NUMCLUSTER);
+}
 
 #endif

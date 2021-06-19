@@ -17,6 +17,13 @@ typedef struct Points{
     float values[DIMENSIONS];
     int cluster;
 } Point;
+
+void printtabs(int level){
+    for(int i = 0 ; i < level ; i++){
+        printf("\t");
+    }
+}
+
 // assign to be a random values in D dims
 void randomValues(Point *x){
     for(int i = 0 ; i < DIMENSIONS ; i++){
@@ -55,6 +62,21 @@ float pointDistance(Point x, Point y){
         dist += (x.values[i] - y.values[i])*(x.values[i] - y.values[i]);
     }
     return pow(dist, 1.0/DIMENSIONS);
+}
+
+// mainly just call this when you want to print points for some structure or system.
+// just serves as an abstracted way of doing it that can be changed based on what it works with
+void printAllPoints(Point *data, int level, int num){
+    for(int i = 0 ; i < num ; i++){
+        printtabs(level);
+        printPoint(data[i]);
+    }
+}
+
+void printDataPoints(Point *data, int num){
+    int level = 2;
+    printf("Printing data points \n");
+    printAllPoints(data, level, num);
 }
 
 #endif
