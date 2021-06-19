@@ -2,13 +2,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include "point.h"
+#include "fuzzyPoint.h"
 
 #ifndef fuzzyMEANS
 #define fuzzyMEANS
 
-// Fuzzy means clustering
-
+#define NUMPOINTS 100
 
 
 
