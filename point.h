@@ -7,9 +7,9 @@
 #define POINT
 // compiler directives
 #define DIMENSIONS 3
-#define NUMCLUSTER 2
-#define UPPER 20
-#define LOWER -20
+#define NUMCLUSTER 40
+#define UPPER 10000
+#define LOWER -10000
 
 // make this a class
 typedef struct Points{
@@ -59,9 +59,10 @@ void assignCluster(Point *x, int cluster){
 float pointDistance(Point x, Point y){
     float dist = 0;
     for(int i = 0; i < DIMENSIONS; i++){
-        dist += (x.values[i] - y.values[i])*(x.values[i] - y.values[i]);
+        float temp = (x.values[i] - y.values[i]);
+        dist += temp*temp;
     }
-    return pow(dist, 1.0/DIMENSIONS);
+    return dist;
 }
 
 // mainly just call this when you want to print points for some structure or system.

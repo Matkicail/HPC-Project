@@ -7,8 +7,8 @@
 #ifndef kMEANS
 #define kMEANS
 // basically given a malloced array init the points for clustering
-#define NUMPOINTS 100000
-#define ITTERATIONS 100
+#define NUMPOINTS 2000
+#define ITTERATIONS 10
 void initKPoints(Point *kPoints){
     for(int i = 0; i < NUMCLUSTER ; i++){
         initPoint(&kPoints[i]);

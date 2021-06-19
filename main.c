@@ -18,7 +18,7 @@ int main(){
         assignDataCluster(kPoints, data);
     }
     printCentroids(kPoints);
-    printDataPoints(data, NUMPOINTS);
+    // printDataPoints(data, NUMPOINTS);
     return 0;
 }
 
