@@ -6,8 +6,8 @@
 #ifndef POINT
 #define POINT
 // compiler directives
-#define DIMENSIONS 3
-#define NUMCLUSTER 40
+#define DIMENSIONS 12
+#define NUMCLUSTER 60
 #define UPPER 10000
 #define LOWER -10000
 
@@ -60,9 +60,9 @@ float pointDistance(Point x, Point y){
     float dist = 0;
     for(int i = 0; i < DIMENSIONS; i++){
         float temp = (x.values[i] - y.values[i]);
-        dist += temp*temp;
+        dist += temp * temp;
     }
-    return dist;
+    return pow(dist, 1.0/2);
 }
 
 // mainly just call this when you want to print points for some structure or system.
