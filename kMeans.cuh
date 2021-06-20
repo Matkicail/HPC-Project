@@ -13,6 +13,9 @@
 // calculate the centres new mean
 // receive data
 // cylce for ITTERATIONS
+// This would require two different dims for the blocks and threads respectively
+// One which matches to the calculateCentres which requires us to only look at the K centres
+// One which matches to the assignCluster which requires us to look at M points where M is vastly less than N
 
 // assume we give each cluster a thread
 // Note that the below would need the cluster in memory to conistently be the updated cluster
@@ -53,12 +56,14 @@ __global__ calculateCentres(Point *data, Point *cluster){
 __global__ assignCluster(Point *data, Point *clusters, int numAssigned){
     int tid = blockIdx.x*blockDim.x threadIdx.x;
     for(int i = 0 ; i < numAssigned; i++){
-        float distance = pow(UPPER,DIMENSIONS) + UPPER;
-        for(int j = 0 ; j < NUMCLUSTER ; j++){
-            float tempDist = pointDistance(kPoints[j],data[tid + i]);
-            if(tempDist < distance){
-                distance = tempDist;
-                data[tid + i].cluster = kPoints[j].cluster;
+        if(i + tid < NUMPOINTS){
+            float distance = pow(UPPER,DIMENSIONS) + UPPER;
+            for(int j = 0 ; j < NUMCLUSTER ; j++){
+                float tempDist = pointDistance(kPoints[j],data[tid + i]);
+                if(tempDist < distance){
+                    distance = tempDist;
+                    data[tid + i].cluster = kPoints[j].cluster;
+                }
             }
         }
     }
