@@ -10,12 +10,10 @@ int main(){
     // testFuzzy();
     FuzzyPoint *centroids = (FuzzyPoint *)malloc(NUMCLUSTER * sizeof(FuzzyPoint));
     FuzzyPoint *data = (FuzzyPoint *)malloc(NUMPOINTS * sizeof(FuzzyPoint));
-    for(int i = 0 ; i < NUMPOINTS ; i++){
-        // can make a function to automate this
-        initFuzzyPoint(&data[i]);
-    }
+    initAllFuzzyPoints(data);
+    printAllFuzzyPoints(data);
     initCentroids(centroids);
-    calculateCentroids(centroids, data);
+    // calculateCentroids(centroids, data);
     printCentroids(centroids);
     free(centroids);
     free(data);

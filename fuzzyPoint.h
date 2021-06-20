@@ -33,8 +33,9 @@ void initProb(FuzzyPoint *x){
     int i = 0;
     float tempProb = 0.0f;
     while(generating){
-
-        float prob = ((rand() % (13 - 0 + 1)) + 0);
+        // The prime number chosen can be improved
+        // But this would need to be done empirically
+        float prob = rand() % 21;
         prob /= 100;
         if(tempProb + prob > 1){
             x->clusters[i] += 1-tempProb;
