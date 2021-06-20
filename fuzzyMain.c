@@ -8,26 +8,21 @@ void testFuzzy();
 
 int main(){
     // testFuzzy();
-    FuzzyPoint *data = (FuzzyPoint *)malloc(NUMPOINTS * sizeof(FuzzyPoint));
     FuzzyPoint *centroids = (FuzzyPoint *)malloc(NUMCLUSTER * sizeof(FuzzyPoint));
+    FuzzyPoint *data = (FuzzyPoint *)malloc(NUMPOINTS * sizeof(FuzzyPoint));
+    for(int i = 0 ; i < NUMPOINTS ; i++){
+        // can make a function to automate this
+        initFuzzyPoint(&data[i]);
+    }
     initCentroids(centroids);
-    initFuzzyPoints(data, NUMPOINTS);
-    printFuzzyPoints(centroids,NUMCLUSTER);
-    printf("Calculating \n");
-    calculateCentroids(centroids, data, NUMPOINTS);
-    printFuzzyPoints(centroids,NUMCLUSTER);
-    printf("dead ? \n");
+    calculateCentroids(centroids, data);
+    printCentroids(centroids);
     free(centroids);
     free(data);
+    printf("success \n");
     return 0;
 }
 
 void testFuzzy(){
-    FuzzyPoint x,y,z;
-    initPoint(&x);
-    initPoint(&y);
-    initPoint(&z);
-    printPoint(x);
-    printPoint(y);
-    printPoint(z);
+    
 }
