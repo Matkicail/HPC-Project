@@ -7,22 +7,23 @@
 #ifndef FUZZYPOINT
 #define FUZZYPOINT
 
-// Please note an issue here that has to be considered important
-// Dimensions must be <= number of clusters. If this is not the case then things will break
-#define DIMENSIONS 2
-#define NUMCLUSTER 10
-#define UPPER 10000
-#define LOWER -10000
+#define DIMENSIONS 5
+#define NUMCLUSTER 8
+#define UPPER 100000
+#define LOWER 0
 #define epsilon 0.0001
 
-// Fuzzy means clustering
+// Make this a class
 typedef struct FuzzyPoints{
     // Chose to make this a float, we can change it to a double but don't think it is too important.
     float values[DIMENSIONS];
     // Need to represent the probability that this is associated with a specific cluster
     float clusters[NUMCLUSTER];
 } FuzzyPoint;
-
+/**
+ * Initialize a point's probabilities to random. See fuzzyMean.h to initialize data or clusters with those helper functions.
+ * @param x Point that needs to be initialized with probabilities
+ */
 void initProb(FuzzyPoint *x){
 
     for(int i = 0 ; i < NUMCLUSTER ; i++){
@@ -35,8 +36,8 @@ void initProb(FuzzyPoint *x){
     while(generating){
         // The prime number chosen can be improved
         // But this would need to be done empirically
-        float prob = rand() % 21;
-        prob /= 100;
+        float prob = rand() % 200;
+        prob /= 1000;
         if(tempProb + prob > 1){
             x->clusters[i] += 1-tempProb;
             generating = false;
@@ -53,17 +54,27 @@ void initProb(FuzzyPoint *x){
     }
 
 }
+/**
+ * Initialize a point's values to random. See fuzzyMean.h to initialize data or clusters with those helper functions.
+ * @param x Point that needs to be initialized with values in each dimension
+ */
 void initValues(FuzzyPoint *x){
     for(int i = 0 ; i < DIMENSIONS ; i++){
         x->values[i] = (rand() % (UPPER - LOWER + 1)) + LOWER;
     }
 }
-
+/**
+ * Lowest level to initialize a data point to random. See fuzzyMean.h to initialize data or clusters with those helper functions.
+ * @param x Point that needs to be initialized
+ */
 void initFuzzyPoint(FuzzyPoint *x){
     initProb(x);
     initValues(x);
 }
-
+/**
+ * Initialize centroids to random. See fuzzyMean.h to initialize data or clusters with those helper functions.
+ * @param x Centroids that need to be initialized
+ */
 void initCentroids(FuzzyPoint *centroid){
     for(int i = 0 ; i < NUMCLUSTER ; i++){
         for(int j = 0 ; j < DIMENSIONS ; j++){
@@ -82,7 +93,10 @@ void initCentroids(FuzzyPoint *centroid){
         }
     }
 }
-
+/**
+ * Just a method to check if the probability of a fuzzyPoint adds to 1
+ * @param x Point that nis being checked
+ */
 void testProbability(FuzzyPoint x){
     float tempSum = 0.0f;
     for(int i = 0 ; i < NUMCLUSTER ; i++){
@@ -93,12 +107,34 @@ void testProbability(FuzzyPoint x){
     }
 }
 
+/**
+ * Calculate the distance between to fuzzyPoints using L2 norm
+ * @param x a fuzzyPoint
+ * @param y a fuzzyPoint
+ */
+float distance(FuzzyPoint x, FuzzyPoint y){
+    float sum = 0.0f;
+    for(int i = 0 ; i < DIMENSIONS ; i++){
+        float temp = (x.values[i] - y.values[i]);
+        sum += temp * temp;
+    }
+    // printf("distance %f \n", sqrt(sum));
+    return sqrt(sum);
+}
+
+/**
+ * Function to print a number of tabs, used in general printing ouf output
+ * @param level number of indents
+ */
 void printtabs(int level){
     for(int i = 0 ; i < level ; i++){
         printf("\t");
     }
 }
-
+/**
+ * Prints a single fuzzyPoint and can be used with a centroid or with a data point.
+ * @param point Point that will have its cluster associations & values printed.
+ */
 void printFuzzyPoint(FuzzyPoint point){
     printf("Cluster Assoc: ");
     for(int i = 0 ; i < NUMCLUSTER ; i++){
