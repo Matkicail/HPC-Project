@@ -26,7 +26,7 @@ void initKPoints(Point *kPoints){
 void averageCentroids(Point *kPoints, Point *data){
     // Create temp points that will serve as a way to store average values for a variety of pieces of info we are interested in
     // Did this to allow for easier extension
-    Point *tempPoints = malloc(NUMCLUSTER * sizeof(Point));
+    Point *tempPoints = (Point *)malloc(NUMCLUSTER * sizeof(Point));
     // storing counts of each cluster
     int clusterCount[NUMCLUSTER];
     for(int i = 0 ; i < NUMCLUSTER ; i++){
