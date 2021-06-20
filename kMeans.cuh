@@ -7,6 +7,12 @@
 #include "kMeans.h"
 #include "point.h"
 
+// Idea here is to slosh betweeen the two with the following flow
+// send data
+// assign centres
+// calculate the centres new mean
+// receive data
+// cylce for ITTERATIONS
 
 // assume we give each cluster a thread
 // Note that the below would need the cluster in memory to conistently be the updated cluster
@@ -43,6 +49,19 @@ __global__ calculateCentres(Point *data, Point *cluster){
 // Idea is either to span N data points based on maximum number of blocks/threads
 // This doesnt work really since we could do vastly more, so idea could be to assign M data points to each thread
 // That thread figures out the assignment for those M data points
-__global__ assignCluster(Point *data, Point *clusters){
-
+// Currently not coallesced and unsure if it will work, it relies on the serial implementation but instead with a num assigned and tid
+__global__ assignCluster(Point *data, Point *clusters, int numAssigned){
+    int tid = blockIdx.x*blockDim.x threadIdx.x;
+    for(int i = 0 ; i < numAssigned; i++){
+        float distance = pow(UPPER,DIMENSIONS) + UPPER;
+        for(int j = 0 ; j < NUMCLUSTER ; j++){
+            float tempDist = pointDistance(kPoints[j],data[tid + i]);
+            if(tempDist < distance){
+                distance = tempDist;
+                data[tid + i].cluster = kPoints[j].cluster;
+            }
+        }
+    }
+    __syncthreads();
 }
+
