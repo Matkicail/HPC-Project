@@ -36,6 +36,13 @@ __global__ calculateCentres(Point *data, Point *cluster){
     for(int i = 0 ; i < DIMENSIONS ; i++){
         cluster->values[i] = sum[i] / count;
     }
-
     __syncthreads();
+}
+
+// Need to discuss this one with you.
+// Idea is either to span N data points based on maximum number of blocks/threads
+// This doesnt work really since we could do vastly more, so idea could be to assign M data points to each thread
+// That thread figures out the assignment for those M data points
+__global__ assignCluster(Point *data, Point *clusters){
+
 }
