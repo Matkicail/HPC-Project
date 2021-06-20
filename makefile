@@ -1,12 +1,7 @@
-CC = gcc
-CFLAGS = 
-DEP = -lm
-
-default: main
-
-main:
-	$(CC) $(CFLAGS) main.c $(DEP) -o main
-	chmod a+x main
+# @ means do not echo to screen the command
+# -C change to directory
+all: 
+	@$(MAKE) -C KMeans --no-print-directory
 
 clean:
-	rm main.exe
+	@cd KMeans && $(MAKE) clean --no-print-directory && cd .. 
