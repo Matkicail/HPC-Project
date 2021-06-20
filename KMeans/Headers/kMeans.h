@@ -11,76 +11,103 @@
 #define NUMPOINTS 200000
 #define ITTERATIONS 10
 
-// A note here that should be given attention, this is not selecting a random point to turn into a centre.
-// Rather it generates an entirely new point that will be considered a new point.
-// This point is generated using the exact same criteria as the other points. It is just chosen as the basis of a cluster.
-void initKPoints(Point *kPoints){
-    for(int i = 0; i < NUMCLUSTER ; i++){
-        initPoint(&kPoints[i]);
-        kPoints[i].cluster = i+1;
-        // printPoint(kPoints[i]);
-    }
-}
 
-// not going to care too much about efficiency here given that we are going to use CUDA and MPI eventually
-
-void averageCentroids(Point *kPoints, Point *data){
-    // Create temp points that will serve as a way to store average values for a variety of pieces of info we are interested in
-    // Did this to allow for easier extension
+/**
+ * Calculate the average centroid
+ * @param kPoints array of clusters
+ * @param data array of data points
+ */
+void averageCentroids(Point *kPoints, Point *data)
+{
+    //Temporary cluster points to use for averaging
     Point *tempPoints = (Point *)malloc(NUMCLUSTER * sizeof(Point));
-    // storing counts of each cluster
-    int clusterCount[NUMCLUSTER];
-    for(int i = 0 ; i < NUMCLUSTER ; i++){
-        clusterCount[i] = 0;
-        tempPoints[i].cluster = kPoints[i].cluster;
-        for(int j = 0 ; j < DIMENSIONS ; j++){
-            tempPoints[i].values[j] = 0;
-        }
-    }
-    // Now that everything is set let's find out the average
 
-    // Collect all the points values into respective centroids
-    for(int i = 0 ; i < NUMPOINTS ; i++){
-        for(int j = 0 ; j < DIMENSIONS ; j++){
-            tempPoints[data[i].cluster-1].values[j] += data[i].values[j];
-            clusterCount[data[i].cluster-1] += 1;
+    //Storing counts of each cluster to average
+    int clusterCount[NUMCLUSTER] = {0};
+    for (int i = 0; i < NUMCLUSTER; i++)
+    {
+        tempPoints[i].cluster = kPoints[i].cluster;
+        for (int j = 0; j < DIMENSIONS; j++)
+            tempPoints[i].values[j] = 0;
+    }
+
+    //Calculate the sum of the points to get the average
+    for (int i = 0; i < NUMPOINTS; i++)
+    {
+        for (int j = 0; j < DIMENSIONS; j++)
+        {
+            tempPoints[data[i].cluster - 1].values[j] += data[i].values[j];
+            clusterCount[data[i].cluster - 1] += 1;
         }
     }
-    // average each of them now and assign this value to the original centroid
-    for(int i = 0 ; i < NUMCLUSTER ; i++){
-        for(int j = 0 ; j < DIMENSIONS ; j++){
+
+    //Average each of them now and assign this value to the original centroid
+    for (int i = 0; i < NUMCLUSTER; i++)
+    {
+        for (int j = 0; j < DIMENSIONS; j++)
+        {
             kPoints[i].values[j] = tempPoints[i].values[j] / clusterCount[i];
         }
     }
-    // free memory that is now useless
+
+    //Free memory that is now useless
     free(tempPoints);
 }
 
-// Assigning to the closest point, so max an absolute maximal point
-// This maximimal point should be vastly greater than any other possible point
-// This may inhibit the program - i.e if dimensions or upper get way too large this will no longer be possible
-// Using just float, maybe long float or something.
-void assignDataCluster(Point *kPoints, Point *data){
-    for(int i = 0 ; i < NUMPOINTS; i++){
+/**
+ *  Assigns the datapoint to a cluster and average cluster
+ *  @param kPoints cluster points
+ *  @param data points to be assigned to a cluster
+ */
+void assignDataCluster(Point *kPoints, Point *data)
+{
+    for (int i = 0; i < NUMPOINTS; i++)
+    {
         float distance = FLT_MAX;
-        for(int j = 0 ; j < NUMCLUSTER ; j++){
-            float tempDist = pointDistance(kPoints[j],data[i]);
-            if(tempDist < distance){
+        for (int j = 0; j < NUMCLUSTER; j++)
+        {
+            float tempDist = pointDistance(kPoints[j], data[i]);
+            if (tempDist < distance)
+            {
                 distance = tempDist;
                 data[i].cluster = kPoints[j].cluster;
             }
         }
     }
-    averageCentroids(kPoints,data);
+
+    //Average cluster
+    averageCentroids(kPoints, data);
 }
 
-void initDataPoints(Point *data){
-    for(int i = 0 ; i < NUMPOINTS ; i++){
-        initPoint(&data[i]);
+/**
+ * For initializing all datapoints, similar to initDataPoints but this also sets the cluster assignment
+ * @param data array of points to be initialized
+ */
+void initKPoints(Point *kPoints)
+{
+    for (int i = 0; i < NUMCLUSTER; i++)
+    {
+        initPoint(&kPoints[i]);
+        kPoints[i].cluster = i + 1;
     }
 }
 
-void printCentroids(Point *kPoints){
+/**
+ * For initializing all datapoints, same as initKPoints but doesn't set the cluster assignment
+ * @param data array of points to be initialized
+ */
+void initDataPoints(Point *data)
+{
+    for (int i = 0; i < NUMPOINTS; i++)
+        initPoint(&data[i]);
+}
+
+/**
+ * Helper function to print centroids
+ * @param kPoints An array of centroids
+ */
+void printCentroids(Point *kPoints)
+{
     int level = 1;
     printf("Printing centroids \n");
     printAllPoints(kPoints, level, NUMCLUSTER);

@@ -7,19 +7,25 @@
 
 void testPoints();
 
-int main(){
-    
+int main()
+{
+    //Create k cluster points and initialize those points
     Point *kPoints = (Point *)malloc(NUMCLUSTER * sizeof(Point));
     initKPoints(kPoints);
-    printCentroids(kPoints);
+
+    //Print
+    //printCentroids(kPoints);
+
+    //Create and initialize datapoints
     Point *data = (Point *)malloc(NUMPOINTS * sizeof(Point));
     initDataPoints(data);
-    for(int i = 0 ; i < ITTERATIONS ; i++){
-        assignDataCluster(kPoints, data);
-    }
-    printCentroids(kPoints);
-    // printDataPoints(data, NUMPOINTS);
 
+    //K-Means
+    for(int i = 0 ; i < ITTERATIONS ; i++)
+        assignDataCluster(kPoints, data);
+    
+    printCentroids(kPoints);
+    //printDataPoints(data, NUMPOINTS);
 
     free(kPoints);
     free(data);
