@@ -20,8 +20,8 @@
 // // CUDA helper functions
 // #include <helper_cuda.h>         // helper functions for CUDA error check
 
-
-
+#define numBlocks 
+#define numThreads
 
 void testPoints();
 
@@ -40,7 +40,10 @@ int main(){
     // Serial Code
     
     // Parallel Code
-    dim3
+
+    // dim3 block();
+    // dim3 threads();
+
     // Parallel Code
 
 

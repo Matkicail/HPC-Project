@@ -9,8 +9,8 @@
 
 // Please note an issue here that has to be considered important
 // Dimensions must be <= number of clusters. If this is not the case then things will break
-#define DIMENSIONS 5
-#define NUMCLUSTER 3
+#define DIMENSIONS 2
+#define NUMCLUSTER 10
 #define UPPER 10000
 #define LOWER -10000
 #define epsilon 0.0001

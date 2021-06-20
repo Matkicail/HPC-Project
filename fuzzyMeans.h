@@ -17,8 +17,8 @@ void calculateCentroids(FuzzyPoint *centroids, FuzzyPoint *data){
             float probSum = 0.0f;
             float pointSum = 0.0f;
             for(int k = 0 ; k < NUMPOINTS ; k++){
-                probSum += data[k].clusters[j];
-                pointSum += data[k].values[j];
+                probSum += data[k].clusters[i];
+                pointSum += data[k].values[j]  * data[k].clusters[i];
             }
             centroids[i].values[j] = pointSum / probSum;
         }

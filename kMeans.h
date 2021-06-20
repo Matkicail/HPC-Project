@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <float.h>
 #include "point.h"
 
 #ifndef kMEANS
@@ -61,7 +62,7 @@ void averageCentroids(Point *kPoints, Point *data){
 // Using just float, maybe long float or something.
 void assignDataCluster(Point *kPoints, Point *data){
     for(int i = 0 ; i < NUMPOINTS; i++){
-        float distance = pow(UPPER,DIMENSIONS) + UPPER;
+        float distance = FLT_MAX;
         for(int j = 0 ; j < NUMCLUSTER ; j++){
             float tempDist = pointDistance(kPoints[j],data[i]);
             if(tempDist < distance){

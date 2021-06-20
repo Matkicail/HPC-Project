@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-
+#include <float.h>
 // Include the other two headers so we have access to their defines
 #include "kMeans.h"
 #include "point.h"
@@ -45,7 +45,6 @@ __global__ calculateCentres(Point *data, Point *cluster){
     for(int i = 0 ; i < DIMENSIONS ; i++){
         cluster->values[i] = sum[i] / count;
     }
-    __syncthreads();
 }
 
 // Need to discuss this one with you.
@@ -54,10 +53,10 @@ __global__ calculateCentres(Point *data, Point *cluster){
 // That thread figures out the assignment for those M data points
 // Currently not coallesced and unsure if it will work, it relies on the serial implementation but instead with a num assigned and tid
 __global__ assignCluster(Point *data, Point *clusters, int numAssigned){
-    int tid = blockIdx.x*blockDim.x threadIdx.x;
+    int tid = blockIdx.x*blockDim.x + threadIdx.x;
     for(int i = 0 ; i < numAssigned; i++){
         if(i + tid < NUMPOINTS){
-            float distance = pow(UPPER,DIMENSIONS) + UPPER;
+            float distance = FLT_MAX;
             for(int j = 0 ; j < NUMCLUSTER ; j++){
                 float tempDist = pointDistance(kPoints[j],data[tid + i]);
                 if(tempDist < distance){
@@ -67,6 +66,5 @@ __global__ assignCluster(Point *data, Point *clusters, int numAssigned){
             }
         }
     }
-    __syncthreads();
 }
 
