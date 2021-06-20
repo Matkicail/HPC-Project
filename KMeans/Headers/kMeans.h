@@ -3,10 +3,10 @@
 #include <time.h>
 #include <math.h>
 #include <float.h>
-#include "point.h"
-
+#include "../Helpers/point.h"
 #ifndef kMEANS
 #define kMEANS
+
 // basically given a malloced array init the points for clustering
 #define NUMPOINTS 200000
 #define ITTERATIONS 10

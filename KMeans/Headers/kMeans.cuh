@@ -5,7 +5,7 @@
 #include <float.h>
 // Include the other two headers so we have access to their defines
 #include "kMeans.h"
-#include "point.h"
+#include "../Helpers/point.h"
 
 // Idea here is to slosh betweeen the two with the following flow
 // send data

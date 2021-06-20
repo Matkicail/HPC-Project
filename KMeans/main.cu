@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "point.h"
-#include "kMeans.h"
+#include "./Helpers/point.h"
+#include "./Headers/kMeans.h"
+#include "./Headers/kMeans.cuh"
+
 
 #ifdef _WIN32
 #  define WINDOWS_LEAN_AND_MEAN

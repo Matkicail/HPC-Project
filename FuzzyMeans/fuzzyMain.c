@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "fuzzyMeans.h"
+#include "./Headers/fuzzyMeans.h"
 
 void testFuzzy();
 

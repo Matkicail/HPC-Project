@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "point.h"
-#include "kMeans.h"
+#include "./Helpers/point.h"
+#include "./Headers/kMeans.h"
 
 void testPoints();
 

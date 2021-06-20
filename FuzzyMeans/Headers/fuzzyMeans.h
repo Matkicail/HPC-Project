@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include "fuzzyPoint.h"
+#include "../Helpers/fuzzyPoint.h"
 
 #ifndef fuzzyMEANS
 #define fuzzyMEANS
