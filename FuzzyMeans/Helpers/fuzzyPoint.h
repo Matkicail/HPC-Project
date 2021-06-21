@@ -7,18 +7,18 @@
 #ifndef FUZZYPOINT
 #define FUZZYPOINT
 
-#define DIMENSIONS 5
-#define NUMCLUSTER 8
-#define UPPER 100000
+#define DIMENSIONS 8
+#define NUMCLUSTER 10
+#define UPPER 10000
 #define LOWER 0
 #define epsilon 0.0001
 
 // Make this a class
 typedef struct FuzzyPoints{
-    // Chose to make this a float, we can change it to a double but don't think it is too important.
-    float values[DIMENSIONS];
+    // Chose to make this a double, we can change it to a double but don't think it is too important.
+    double values[DIMENSIONS];
     // Need to represent the probability that this is associated with a specific cluster
-    float clusters[NUMCLUSTER];
+    double clusters[NUMCLUSTER];
 } FuzzyPoint;
 /**
  * Initialize a point's probabilities to random. See fuzzyMean.h to initialize data or clusters with those helper functions.
@@ -32,11 +32,11 @@ void initProb(FuzzyPoint *x){
 
     bool generating = true;
     int i = 0;
-    float tempProb = 0.0f;
+    double tempProb = 0.0f;
     while(generating){
         // The prime number chosen can be improved
         // But this would need to be done empirically
-        float prob = rand() % 200;
+        double prob = rand() % 200;
         prob /= 1000;
         if(tempProb + prob > 1){
             x->clusters[i] += 1-tempProb;
@@ -59,8 +59,11 @@ void initProb(FuzzyPoint *x){
  * @param x Point that needs to be initialized with values in each dimension
  */
 void initValues(FuzzyPoint *x){
+    int myCluster = (rand() % (NUMCLUSTER - 1 + 1)) + 1;
+    int localLower = UPPER / NUMCLUSTER;
+    int range = UPPER;
     for(int i = 0 ; i < DIMENSIONS ; i++){
-        x->values[i] = (rand() % (UPPER - LOWER + 1)) + LOWER;
+        x->values[i] = (rand() % (localLower*(myCluster+1) - localLower*myCluster + 1)) + localLower*myCluster;
     }
 }
 /**
@@ -98,7 +101,7 @@ void initCentroids(FuzzyPoint *centroid){
  * @param x Point that nis being checked
  */
 void testProbability(FuzzyPoint x){
-    float tempSum = 0.0f;
+    double tempSum = 0.0f;
     for(int i = 0 ; i < NUMCLUSTER ; i++){
         tempSum += x.clusters[i];
         if(tempSum > 1.0f){
@@ -112,10 +115,10 @@ void testProbability(FuzzyPoint x){
  * @param x a fuzzyPoint
  * @param y a fuzzyPoint
  */
-float distance(FuzzyPoint x, FuzzyPoint y){
-    float sum = 0.0f;
+double distance(FuzzyPoint x, FuzzyPoint y){
+    double sum = 0.0f;
     for(int i = 0 ; i < DIMENSIONS ; i++){
-        float temp = (x.values[i] - y.values[i]);
+        double temp = (x.values[i] - y.values[i]);
         sum += temp * temp;
     }
     // printf("distance %f \n", sqrt(sum));

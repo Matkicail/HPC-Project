@@ -15,7 +15,10 @@ int main(){
     initAllFuzzyPoints(data);
     printAllFuzzyPoints(data);
     initCentroids(centroids);
-    for(int i = 0 ; i < 1000 ; i++){
+    for(int i = 0 ; i < NUMCLUSTER ; i++){
+        initValues(&centroids[i]);
+    }
+    for(int i = 0 ; i < 100 ; i++){
         calculateCentroids(centroids, data);
         // printCentroids(centroids);
         updateDataAssignment(centroids,data);

@@ -7,7 +7,7 @@
 #ifndef fuzzyMEANS
 #define fuzzyMEANS 2
 #define FUZZINESS 4
-#define NUMPOINTS 200
+#define NUMPOINTS 1000
 
 
 /**
@@ -18,8 +18,8 @@
 void calculateCentroids(FuzzyPoint *centroids, FuzzyPoint *data){
     for(int i = 0 ; i < NUMCLUSTER ; i++){
         for(int j = 0 ; j < DIMENSIONS; j++){
-            float probSum = 0.0f;
-            float pointSum = 0.0f;
+            double probSum = 0.0f;
+            double pointSum = 0.0f;
             for(int k = 0 ; k < NUMPOINTS ; k++){
                 probSum += pow(data[k].clusters[i],FUZZINESS);
                 pointSum += data[k].values[j]  * pow(data[k].clusters[i],FUZZINESS);
@@ -35,17 +35,17 @@ void calculateCentroids(FuzzyPoint *centroids, FuzzyPoint *data){
  * @param centroids the centroids that will be used to update the fuzzyPoints based on their values and their association to that fuzzyPoint.
  * @param centroid the centroid we are measuring association of
  */
-float getNewValue(FuzzyPoint data, FuzzyPoint centroid, FuzzyPoint *centroids){
-    float p = 2.0f / (FUZZINESS-1);
-    float sum = 0.0f;
-    float temp;
-    float distDataCentroid = distance(data,centroid);
+double getNewValue(FuzzyPoint data, FuzzyPoint centroid, FuzzyPoint *centroids){
+    double p = 2.0f / (FUZZINESS-1);
+    double sum = 0.0f;
+    double temp;
+    double distDataCentroid = distance(data,centroid);
     for(int i = 0 ; i < NUMCLUSTER ; i++){
         temp = distDataCentroid / distance(data, centroids[i]);
         temp = pow(temp,p);
         sum += temp;
     }
-    return 1 / sum;
+    return 1.0f / sum;
 }
 
 /**
@@ -58,7 +58,7 @@ void updateDataAssignment(FuzzyPoint *centroids, FuzzyPoint *data){
     for(int i = 0 ; i < NUMPOINTS; i++){
         // For point's association to that specific cluster
         for(int j = 0 ; j < NUMCLUSTER ; j++){
-            float assoc = getNewValue(data[i], centroids[j], centroids);
+            double assoc = getNewValue(data[i], centroids[j], centroids);
             // printf("point: %d has %f assoc to centroid %d \n",i,assoc,j);
             data[i].clusters[j] = assoc;
         }
