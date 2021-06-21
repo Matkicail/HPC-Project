@@ -7,8 +7,8 @@
 #define POINT
 
 // compiler directives
-#define DIMENSIONS 12
-#define NUMCLUSTER 60
+#define DIMENSIONS 2
+#define NUMCLUSTER 12
 #define UPPER 10000
 #define LOWER -10000
 
