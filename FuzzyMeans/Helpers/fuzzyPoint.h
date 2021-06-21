@@ -11,7 +11,7 @@
 #define NUMCLUSTER 10
 #define UPPER 10000
 #define LOWER 0
-#define epsilon 0.0001
+#define EPSILON 10000000000
 
 // Make this a class
 typedef struct FuzzyPoints{

@@ -7,7 +7,7 @@
 #ifndef fuzzyMEANS
 #define fuzzyMEANS 2
 #define FUZZINESS 4
-#define NUMPOINTS 1000
+#define NUMPOINTS 2048
 
 
 /**

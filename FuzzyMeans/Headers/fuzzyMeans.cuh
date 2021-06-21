@@ -8,8 +8,7 @@
 #ifndef fuzzyMEANSGPU
 #define fuzzyMEANSGPU 2
 #define FUZZINESS 4
-#define NUMPOINTS 1000
-
+#define P 4
 __device__ double pointDistanceGPU(FuzzyPoint x, FuzzyPoint y)
 {
     double dist = 0;
@@ -21,15 +20,43 @@ __device__ double pointDistanceGPU(FuzzyPoint x, FuzzyPoint y)
      return sqrtf(dist);
 }
 
-// __global__ calculateCentres(Point *data, Point *cluster){
+/**
+ * Calculate the updated association of data point to a centroid
+ * @param data the fuzzyPoints that will have their values updated based on centroids they are associated with
+ * @param centroids the centroids that will be used to update the fuzzyPoints based on their values and their association to that fuzzyPoint.
+ * @param centroid the centroid we are measuring association of
+ */
+double __device__ getNewValueGPU(FuzzyPoint data, FuzzyPoint centroid, FuzzyPoint *centroids){
+    double p = 2.0f / (FUZZINESS-1);
+    double sum = 0.0f;
+    double temp;
+    double distDataCentroid = pointDistanceGPU(data,centroid);
+    for(int i = 0 ; i < NUMCLUSTER ; i++){
+        temp = distDataCentroid / pointDistanceGPU(data, centroids[i]);
+        temp = pow(temp,p);
+        sum += temp;
+    }
+    return 1.0f / sum;
+}
 
-// }
-
-__global__ void assignClusterGPU(FuzzyPoint *data, FuzzyPoint *kPoints, int dataSize, int clusterSize)
-{
+/**
+ * Calculate the updated association of data points based on the centroids and their association
+ * @param data the fuzzyPoints that will have their values updated based on centroids they are associated with
+ * @param centroids the centroids that will be used to update the fuzzyPoints based on their values and their association to that fuzzyPoint.
+ */
+void __global__ updateDataAssignmentGPU(FuzzyPoint *centroids, FuzzyPoint *data, FuzzyPoint *data_out){
+    // For every point
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    int numAssigned = dataSize / blockDim.x;
-
+    int dataAssigned = NUMPOINTS / blockDim.x;
+    // Not coalesced at all
+    for(int i = 0 ; i < dataAssigned ; i++){
+        // For point's association to that specific cluster
+        for(int j = 0 ; j < NUMCLUSTER ; j++){
+            double assoc = getNewValueGPU(data[tid + i*(dataAssigned)], centroids[j], centroids);
+            // printf("point: %d has %f assoc to centroid %d \n",i,assoc,j);
+            data_out[tid + i*(dataAssigned)].clusters[j] = assoc;
+        }
+    }
 }
 
 /**
