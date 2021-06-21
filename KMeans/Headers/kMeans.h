@@ -8,9 +8,8 @@
 #define kMEANS
 
 // basically given a malloced array init the points for clustering
-#define NUMPOINTS 38
-#define ITTERATIONS 10
-
+#define NUMPOINTS 32
+#define ITERATIONS 10
 
 /**
  * Calculate the average centroid
@@ -37,8 +36,8 @@ void averageCentroids(Point *kPoints, Point *data)
         for (int j = 0; j < DIMENSIONS; j++)
         {
             tempPoints[data[i].cluster - 1].values[j] += data[i].values[j];
-            clusterCount[data[i].cluster - 1] += 1;
         }
+        clusterCount[data[i].cluster - 1] += 1;
     }
 
     //Average each of them now and assign this value to the original centroid
@@ -46,7 +45,8 @@ void averageCentroids(Point *kPoints, Point *data)
     {
         for (int j = 0; j < DIMENSIONS; j++)
         {
-            kPoints[i].values[j] = tempPoints[i].values[j] / clusterCount[i];
+            if(clusterCount[i] != 0)
+                kPoints[i].values[j] = tempPoints[i].values[j] / clusterCount[i];
         }
     }
 

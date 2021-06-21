@@ -5,6 +5,7 @@
 #include "./Helpers/point.h"
 #include "./Headers/kMeans.h"
 #include "./Headers/kMeans.cuh"
+#include "./Misc/Logger.h"
 
 // Includes CUDA
 #include <cuda_runtime.h>
@@ -12,6 +13,30 @@
 #include <helper_cuda.h>         // helper functions for CUDA error check
 
 #define NUMTHREADS 16
+
+void validateData(Point *data1, Point *data2, int size)
+{
+    for(int i = 0; i < size; i++)
+    {
+        if(data1[i].cluster != data2[i].cluster)
+        {
+            LogError("Error: Custers are not equal");
+            break;
+        }
+
+        for(int j = 0; j < DIMENSIONS; j++)
+        {
+            if(data1[i].values[j] != data2[i].values[j])
+            {
+                LogError("Error: Values are not equal");
+                printf("%f != %f\n", data1[i].values[j], data2[i].values[j]);
+                break;
+            }
+        }
+    }
+
+    LogPass("Test Sucessful");
+}
 
 int main()
 {
@@ -27,9 +52,8 @@ int main()
     memcpy(dataTemp, data, NUMPOINTS * sizeof(Point));
 
     //Serial
-    assignDataCluster(kPointsTemp, dataTemp);
-    printDataPoints(dataTemp, NUMPOINTS);
-    printf("\n\n");
+    for(int i = 0; i < ITERATIONS; i++)
+        printCentroids(kPointsTemp);
 
     //Create memory on GPU
     Point *deviceKPoints, *deviceData;
@@ -40,22 +64,46 @@ int main()
     cudaMemcpy(deviceKPoints, kPoints, NUMCLUSTER * sizeof(Point), cudaMemcpyHostToDevice);
     cudaMemcpy(deviceData, data, NUMPOINTS * sizeof(Point), cudaMemcpyHostToDevice);
 
+    //Set up threads for Cluster assignment to data
+    int threadsCountData = NUMTHREADS;
+    int blocksCountData = (NUMPOINTS + threadsCountData - 1)  / threadsCountData;
 
-    //Set up threads
-    int threadsCount = NUMTHREADS;
-    int blocksCount = (NUMPOINTS + threadsCount - 1)  / threadsCount;
+    //Set up threads for cluster values update
+    int threadsCountCluster = NUMCLUSTER;
+    int blocksCountDataCluster = 1; //ASSUMING NUMCLUSTER < 1024 ALWAYS
 
     //Setup threads
-    dim3 threads(threadsCount, 1, 1);
-    dim3 blocks(blocksCount, 1, 1);
+    dim3 threadsData(threadsCountData, 1, 1);
+    dim3 blocksData(blocksCountData, 1, 1);
+
+    //Setup threads cluster
+    dim3 threadsCluster(threadsCountCluster, 1, 1);
+    dim3 blocksCluster(blocksCountDataCluster, 1, 1);
 
     //Launch kernel
-    assignCluster<<<blocks, threads>>>(deviceData, deviceKPoints, NUMPOINTS, NUMCLUSTER);
-    getLastCudaError("Kernel execution failed");
-    checkCudaErrors(cudaDeviceSynchronize());
-    cudaMemcpy(data, deviceData, NUMPOINTS * sizeof(Point), cudaMemcpyDeviceToHost);
+    for(int i = 0; i < ITERATIONS; i++)
+    {
+        assignCluster<<<blocksData, threadsData>>>(deviceData, deviceKPoints, NUMPOINTS, NUMCLUSTER);
+        getLastCudaError("Kernel execution failed");
+        checkCudaErrors(cudaDeviceSynchronize());
+    
+        calculateCentres<<<blocksCluster, threadsCluster>>>(deviceData, deviceKPoints);
+        getLastCudaError("Kernel execution failed");
+        checkCudaErrors(cudaDeviceSynchronize());
+    }
 
-    printDataPoints(data, NUMPOINTS);
+    //printDataPoints(data, NUMPOINTS);
+    //printDataPoints(dataTemp, NUMPOINTS);
+
+    // printCentroids(kPoints);
+    // printCentroids(kPointsTemp);
+
+    checkCudaErrors(cudaMemcpy(data, deviceData, NUMPOINTS * sizeof(Point), cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(kPoints, deviceKPoints, NUMCLUSTER * sizeof(Point), cudaMemcpyDeviceToHost));
+
+
+    validateData(data, dataTemp, NUMPOINTS);
+    validateData(kPoints, kPointsTemp, NUMCLUSTER);
 
     free(kPoints);
     free(data);

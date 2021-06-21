@@ -8,7 +8,7 @@
 
 // compiler directives
 #define DIMENSIONS 2
-#define NUMCLUSTER 12
+#define NUMCLUSTER 16
 #define UPPER 10000
 #define LOWER -10000
 

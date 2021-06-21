@@ -21,7 +21,7 @@ int main()
     initDataPoints(data);
 
     //K-Means
-    for(int i = 0 ; i < ITTERATIONS ; i++)
+    for(int i = 0 ; i < ITERATIONS ; i++)
         assignDataCluster(kPoints, data);
     
     printCentroids(kPoints);
