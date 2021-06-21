@@ -37,7 +37,7 @@ __global__ void assignClusterGPU(FuzzyPoint *data, FuzzyPoint *kPoints, int data
  * @param centroids the centroids that will have their values updated based on data associated with them
  * @param data the fuzzyPoints that will be used to update the centroids based on their values and their association to that centroid.
  */
- void __global__ calculateCentroidsGPU(FuzzyPoint *centroids, FuzzyPoint *data){
+ void __global__ calculateCentroidsGPU(FuzzyPoint *centroids, FuzzyPoint *data, FuzzyPoint *outCentroids){
     // Here changed i to tid
     // Will spawn as many threads as there are centroids
     // Each centroid updates itself
@@ -50,7 +50,7 @@ __global__ void assignClusterGPU(FuzzyPoint *data, FuzzyPoint *kPoints, int data
             probSum += pow(data[k].clusters[tid],FUZZINESS);
             pointSum += data[k].values[j]  * pow(data[k].clusters[tid],FUZZINESS);
         }
-        centroids[tid].values[j] = pointSum / probSum;
+        outCentroids[tid].values[j] = pointSum / probSum;
     }
 }
 
