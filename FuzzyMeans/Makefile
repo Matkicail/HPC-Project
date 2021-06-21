@@ -1,17 +1,19 @@
 CC = gcc
 DEP = -lm
 
-all: main
+all: clean main cuda
 
 main:
 	gcc fuzzyMain.c -o fuzzyMain $(DEP)
 
+cuda:
+	nvcc -I "./inc" fuzzyMain.cu -o fuzzyCuda
 
 # Determine if windows or linux
 ifeq ($(OS),Windows_NT)
-    RM = del fuzzyMain.exe
+    RM = del main.exe; del cuda.exe
 else
-    RM = rm -f fuzzyMain
+    RM = rm -f fuzzyMain; rm -f fuzzyCuda
 endif
 
 clean:
