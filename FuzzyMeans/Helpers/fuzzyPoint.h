@@ -7,8 +7,8 @@
 #ifndef FUZZYPOINT
 #define FUZZYPOINT
 
-#define DIMENSIONS (1 << 5)
-#define NUMCLUSTER (1 << 7)
+#define DIMENSIONS (1 << 1)
+#define NUMCLUSTER (1 << 6)
 #define UPPER 1000000
 #define LOWER 0
 #define EPSILON 0.05

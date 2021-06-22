@@ -8,8 +8,9 @@
 #define fuzzyMEANS 2
 #define FUZZINESS 4
 // do not go above 
-#define NUMPOINTS (1 << 18)
-#define ITERATIONS 5
+#define NUMPOINTS (1 << 17)
+// Note that this is one
+#define ITERATIONS 1
 
 /**
  * Calculate the updated version of centroids based on the data points and their association

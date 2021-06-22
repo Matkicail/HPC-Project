@@ -59,7 +59,7 @@ int main()
         updateDataAssignment(kPointsTemp,dataTemp);
         calculateCentroids(kPointsTemp, dataTemp);
     }
-
+    printf("Numpoints: %d, Numcluster: %d, Dimensions: %d \n", NUMPOINTS, NUMCLUSTER, DIMENSIONS);
     printf ("Time for the serial code: %f SECONDS\n", omp_get_wtime() - startSerial);
     // //Create memory on GPU
     // return 0;
@@ -92,6 +92,7 @@ int main()
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start, 0);
+    
     //Launch kernel
     for(int i = 0; i < ITERATIONS; i++)
     {
@@ -114,13 +115,16 @@ int main()
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&time, start, stop);
-    printf ("Time for the kernel: %f ms\n", time);
+    printf("Numpoints: %d, Numcluster: %d, Dimensions: %d \n", NUMPOINTS, NUMCLUSTER, DIMENSIONS);
+    printf("Time for the kernel: %f seconds\n", time/1000);
     checkCudaErrors(cudaMemcpy(data, deviceData, NUMPOINTS * sizeof(FuzzyPoint), cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaMemcpy(kPoints, deviceKPoints, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyDeviceToHost));
     
-    validateData(data, dataTemp, NUMPOINTS);
-    validateData(kPoints, kPointsTemp, NUMCLUSTER);
-
+    // validateData(data, dataTemp, NUMPOINTS);
+    // validateData(kPoints, kPointsTemp, NUMCLUSTER);
+    printf("\n####################################################################################################\n");
+    cudaFree(deviceData);
+    cudaFree(deviceKPoints);
     free(kPoints);
     free(data);
     return 0;
