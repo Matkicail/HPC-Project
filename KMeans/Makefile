@@ -1,17 +1,19 @@
 CC = gcc
 DEP = -lm
 
-all: main
+all: clean main cuda
 
 main:
 	gcc main.c -o main $(DEP)
 
+cuda:
+	nvcc -Xcompiler -fopenmp -I "./inc" main.cu -o cuda 
 
 # Determine if windows or linux
 ifeq ($(OS),Windows_NT)
-    RM = del main.exe
+    RM = del main.exe; del cuda.exe
 else
-    RM = rm -f main
+    RM = rm -f main; rm -f cuda
 endif
 
 clean:

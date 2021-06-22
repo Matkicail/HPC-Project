@@ -2,164 +2,126 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "./Helpers/fuzzyPoint.h"
 #include "./Headers/fuzzyMeans.h"
-
-#ifdef _WIN32
-#  define WINDOWS_LEAN_AND_MEAN
-#  define NOMINMAX
-#  include <windows.h>
-#endif
-
+#include "./Headers/fuzzyMeans.cuh"
+#include "./Misc/Logger.h"
+#include <omp.h>
 // Includes CUDA
 #include <cuda_runtime.h>
-
-// Utilities and timing functions
-// Wait for Jared on this one, something really weird is going on in the image helper & we do not need that file at all.
-// #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
-
-// CUDA helper functions
+#include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
 #include <helper_cuda.h>         // helper functions for CUDA error check
 
-#include "./Headers/fuzzyMeans.cuh"
+#define NUMTHREADS 1024
 
-#define ITERATIONS 10
+void validateData(FuzzyPoint *data1, FuzzyPoint *data2, int size)
+{
+    for(int i = 0; i < size; i++)
+    {
+        for(int j = 0 ; j < NUMCLUSTER ; j++){
+            if(data1[i].clusters[j] != data2[i].clusters[j])
+            {
+                LogError("Error: Clusters are not equal");
+                // return;
+            }
+        }
+        for(int j = 0; j < DIMENSIONS; j++)
+        {
+            if(data1[i].values[j] != data2[i].values[j])
+            {
+                LogError("Error: Values are not equal");
+                printf("%f != %f\n", data1[i].values[j], data2[i].values[j]);
+                // return;
+            }
+        }
+    }
 
-void validateCentroids(int iterations, FuzzyPoint *centroids, FuzzyPoint *data, FuzzyPoint *cudaCentroids);
-void validateData(int iterations, FuzzyPoint *centroids, FuzzyPoint *data, FuzzyPoint *cudaData);
+    LogPass("Test Sucessful");
+}
 
-int main(){
+int main()
+{   
+    //Create points
+    FuzzyPoint *kPoints = (FuzzyPoint *)malloc(NUMCLUSTER * sizeof(FuzzyPoint));
+    FuzzyPoint *kPointsTemp = (FuzzyPoint *)malloc(NUMCLUSTER * sizeof(FuzzyPoint));
+    initCentroids(kPoints);
+    memcpy(kPointsTemp, kPoints, NUMCLUSTER * sizeof(FuzzyPoint));
 
-    // SERIAL CODE SEGMENT
-    // testFuzzy();
-    FuzzyPoint *centroids = (FuzzyPoint *)malloc(NUMCLUSTER * sizeof(FuzzyPoint));
     FuzzyPoint *data = (FuzzyPoint *)malloc(NUMPOINTS * sizeof(FuzzyPoint));
-    // Since randoming data, we need to validate that it worked
-    FuzzyPoint *serialRefCentroids = (FuzzyPoint *)malloc(NUMCLUSTER * sizeof(FuzzyPoint));
-    FuzzyPoint *serialRefData = (FuzzyPoint *)malloc(NUMPOINTS * sizeof(FuzzyPoint));
+    FuzzyPoint *dataTemp = (FuzzyPoint *)malloc(NUMPOINTS * sizeof(FuzzyPoint));
     initAllFuzzyPoints(data);
-    // printAllFuzzyPoints(data);
-    initCentroids(centroids);
+    memcpy(dataTemp, data, NUMPOINTS * sizeof(FuzzyPoint));
 
-    for(int i = 0 ; i < NUMCLUSTER ; i++){
-        initValues(&centroids[i]);
+    //Serial
+    double startSerial = omp_get_wtime(); 
+    for(int i = 0; i < ITERATIONS; i++){
+        // printCentroids(centroids);
+        updateDataAssignment(kPointsTemp,dataTemp);
+        calculateCentroids(kPointsTemp, dataTemp);
     }
-    memcpy(serialRefCentroids , centroids, NUMCLUSTER * sizeof(FuzzyPoint));
-    memcpy(serialRefData , data, NUMPOINTS * sizeof(FuzzyPoint));
-    // printAllFuzzyPoints(data);
-    // // SERIAL CODE SEGMENT
-    // for(int i = 0 ; i < 100 ; i++){
-    //     calculateCentroids(centroids, data);
-    //     // printCentroids(centroids);
-    //     updateDataAssignment(centroids,data);
-    // }
-    // printf("CALCULATION FINISHED \n");
-    // printCentroids(centroids);
+
+    printf ("Time for the serial code: %f SECONDS\n", omp_get_wtime() - startSerial);
+    // //Create memory on GPU
+    // return 0;
+    FuzzyPoint *deviceKPoints, *deviceData;
+    cudaMalloc(&deviceKPoints, NUMCLUSTER * sizeof(FuzzyPoint));
+    cudaMalloc(&deviceData, NUMPOINTS * sizeof(FuzzyPoint));
+
+    //Copy to device
+    cudaMemcpy(deviceKPoints, kPoints, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyHostToDevice);
+    cudaMemcpy(deviceData, data, NUMPOINTS * sizeof(FuzzyPoint), cudaMemcpyHostToDevice);
+
+    //Set up threads for Cluster assignment to data
+    int threadsCountData = NUMTHREADS;
+    int blocksCountData = (NUMPOINTS + threadsCountData - 1)  / threadsCountData;
+
+    //Set up threads for cluster values update
+    int threadsCountCluster = 1;
+    int blocksCountDataCluster = NUMCLUSTER; //ASSUMING NUMCLUSTER < 1024 ALWAYS
+
+    //Setup threads
+    dim3 threadsData(threadsCountData, 1, 1);
+    dim3 blocksData(blocksCountData, 1, 1);
+
+    //Setup threads cluster
+    dim3 threadsCluster(threadsCountCluster, 1, 1);
+    dim3 blocksCluster(blocksCountDataCluster, 1, 1);
+
+    cudaEvent_t start, stop;
+    float time;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start, 0);
+    //Launch kernel
+    for(int i = 0; i < ITERATIONS; i++)
+    {
+        updateDataAssignmentGPU<<<blocksData, threadsData>>>(deviceKPoints, deviceData);
+        getLastCudaError("Kernel execution failed");
+        checkCudaErrors(cudaDeviceSynchronize());
     
-
-    // PARALLEL CODE SEGMENT
-    printf("GLOBAL\n");
-    // Pointers to device memory
-    FuzzyPoint *dev_centroids, *dev_data,*dev_centroidsOut, *dev_dataOut;
-    //Initialise memory on device for the sizes relevant
-    checkCudaErrors(cudaMalloc( (void**)&dev_centroids, NUMCLUSTER * sizeof(FuzzyPoint)));
-    checkCudaErrors(cudaMalloc( (void**)&dev_data, NUMPOINTS * sizeof(FuzzyPoint)));
-    checkCudaErrors(cudaMalloc( (void**)&dev_centroidsOut, NUMCLUSTER * sizeof(FuzzyPoint)));
-    checkCudaErrors(cudaMalloc( (void**)&dev_dataOut, NUMPOINTS * sizeof(FuzzyPoint)));
-    printf("successfully allocated memory on device \n");
-
-    // Copy memory across
-    checkCudaErrors(cudaMemcpy(dev_centroids, centroids, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(dev_data, data, NUMPOINTS * sizeof(FuzzyPoint), cudaMemcpyHostToDevice));
-    printf("successfully copied memory to device \n");
-
-    // creating Dims
-    dim3 clusterBlock(NUMCLUSTER,1,1);
-    dim3 clusterThreads(1,1,1);
-    // A bit uncertain about the calculation for the data
-    dim3 pointThread(1024,1,1);
-    dim3 pointBlock((NUMPOINTS+1023) / 1024 ,1,1);
-    printf("dim3s created \n");
-
-    calculateCentroidsGPU<<<clusterBlock,clusterThreads>>>(dev_centroids, dev_data, dev_centroidsOut);
-    checkCudaErrors(cudaMemcpy(dev_centroids, dev_centroidsOut, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyDeviceToDevice));
-    printf("calculateCentroidsGPU ran \n");
-    getLastCudaError("Kernel execution failed");
-    for(int i = 0 ; i < ITERATIONS ; i++){
-        updateDataAssignmentGPU<<<clusterBlock,clusterThreads>>>(dev_centroids, dev_data, dev_dataOut);
+        calculateCentresGPU<<<blocksCluster, threadsCluster>>>(deviceData, deviceKPoints);
         getLastCudaError("Kernel execution failed");
-        checkCudaErrors(cudaMemcpy(dev_data, dev_dataOut, NUMPOINTS * sizeof(FuzzyPoint), cudaMemcpyDeviceToDevice));
-        getLastCudaError("Kernel execution failed");
-        calculateCentroidsGPU<<<pointBlock,pointThread>>>(dev_centroids, dev_data, dev_centroidsOut);
-        getLastCudaError("Kernel execution failed");
-        checkCudaErrors(cudaMemcpy(dev_centroids, dev_centroidsOut, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyDeviceToDevice));
-        getLastCudaError("Kernel execution failed");
+        checkCudaErrors(cudaDeviceSynchronize());
+
+        // updateDataAssignmentGPU<<<blocksData, threadsData>>>(deviceKPoints, deviceData);
+        // getLastCudaError("Kernel execution failed");
+        // checkCudaErrors(cudaDeviceSynchronize());
+        // checkCudaErrors(cudaMemcpy(data, deviceData, NUMPOINTS * sizeof(FuzzyPoint), cudaMemcpyDeviceToHost));
+        // calculateCentroids(kPoints, data);
+        // cudaMemcpy(deviceKPoints, kPoints, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyHostToDevice);
+
     }
-    printf("updateDataAssignmentGPU ran \n");
-    getLastCudaError("Kernel execution failed");
-    checkCudaErrors(cudaDeviceSynchronize());
-    checkCudaErrors(cudaMemcpy(centroids, dev_centroidsOut, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyDeviceToHost));
-    printf("Copied the data of dev_centroidsOut \n");
-    checkCudaErrors(cudaMemcpy(data, dev_dataOut, NUMPOINTS * sizeof(FuzzyPoint), cudaMemcpyDeviceToHost));
-    printf("Copied the data of dev_dataOut \n");
-    printCentroids(centroids);
-    // PARALLEL CODE SEGMENT
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&time, start, stop);
+    printf ("Time for the kernel: %f ms\n", time);
+    checkCudaErrors(cudaMemcpy(data, deviceData, NUMPOINTS * sizeof(FuzzyPoint), cudaMemcpyDeviceToHost));
+    checkCudaErrors(cudaMemcpy(kPoints, deviceKPoints, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyDeviceToHost));
     
-    // Validating that serial and parallel produce the same
-    validateData(1, serialRefCentroids, serialRefData,data);
-    validateCentroids(1, serialRefCentroids, data, centroids);
-    // Validating that serial and parallel produce the same
+    validateData(data, dataTemp, NUMPOINTS);
+    validateData(kPoints, kPointsTemp, NUMCLUSTER);
 
-    // Freeing of memory
-    checkCudaErrors(cudaFree(dev_centroidsOut));
-    checkCudaErrors(cudaFree(dev_dataOut));
-    checkCudaErrors(cudaFree(dev_centroids));
-    checkCudaErrors(cudaFree(dev_data));
-    checkCudaErrors(cudaDeviceReset());
-    free(centroids);
+    free(kPoints);
     free(data);
-    printf("success \n");
     return 0;
-}
-
-void validateCentroids(int iterations, FuzzyPoint *centroids, FuzzyPoint *data, FuzzyPoint *cudaCentroids){
-    for(int i = 0 ; i < iterations ; i++){
-        calculateCentroids(centroids, data);
-    }
-    for(int i = 0 ; i < NUMCLUSTER ; i++){
-        for(int j = 0 ; j < DIMENSIONS ; j++){
-            if(centroids[i].values[j] != cudaCentroids[i].values[j]){
-                if(fabs(centroids[i].values[j] - cudaCentroids[i].values[j]) > EPSILON){
-                    printf("An error occured at i: %d j: %d\n",i,j);
-                    printf("centroidVal = %f, cudaCentroidVal = %f\n", centroids[i].values[j], cudaCentroids[i].values[j]);
-                    j = DIMENSIONS;
-                    i = NUMCLUSTER;
-                }
-            }
-        }
-    }
-}
-
-void validateData(int iterations, FuzzyPoint *centroids, FuzzyPoint *data, FuzzyPoint *cudaData){
-    for(int i = 0 ; i < iterations ; i++){
-        calculateCentroids(centroids, data);
-        updateDataAssignment(centroids, data);
-    }
-    for(int i = 0 ; i < NUMPOINTS ; i++){
-        for(int j = 0 ; j < DIMENSIONS ; j++){
-            if(data[i].values[j] != cudaData[i].values[j] || data[i].clusters[j] != cudaData[i].clusters[j]){
-                if(fabs(data[i].values[j] != cudaData[i].values[j]) > EPSILON){
-                    printf("An error occured at i: %d j: %d\n",i,j);
-                    printf("dataVal = %f, cudaDataVal = %f\n", data[i].values[j], cudaData[i].values[j]);
-                    j = DIMENSIONS;
-                    i = NUMCLUSTER;
-                }
-                if( fabs(data[i].clusters[j] != cudaData[i].clusters[j]) > EPSILON){
-                    printf("An error occured at i: %d j: %d\n",i,j);
-                    printf("dataCluster = %f, cudaDataCluster = %f\n", data[i].clusters[j], cudaData[i].clusters[j]);
-                    j = DIMENSIONS;
-                    i = NUMCLUSTER;
-                }
-            }
-        }
-    }
 }

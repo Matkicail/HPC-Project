@@ -7,7 +7,7 @@ main:
 	gcc fuzzyMain.c -o fuzzyMain $(DEP)
 
 cuda:
-	nvcc -I "./inc" fuzzyMain.cu -o fuzzyCuda
+	nvcc -Xcompiler -fopenmp -I "./inc" fuzzyMain.cu -o fuzzyCuda --gpu-architecture=compute_75
 
 # Determine if windows or linux
 ifeq ($(OS),Windows_NT)

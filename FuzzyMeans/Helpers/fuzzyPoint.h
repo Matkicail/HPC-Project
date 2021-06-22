@@ -7,18 +7,18 @@
 #ifndef FUZZYPOINT
 #define FUZZYPOINT
 
-#define DIMENSIONS 8
-#define NUMCLUSTER 10
-#define UPPER 10000
+#define DIMENSIONS (1 << 5)
+#define NUMCLUSTER (1 << 7)
+#define UPPER 1000000
 #define LOWER 0
-#define EPSILON 10000000000
+#define EPSILON 0.05
 
 // Make this a class
 typedef struct FuzzyPoints{
     // Chose to make this a double, we can change it to a double but don't think it is too important.
-    double values[DIMENSIONS];
+    float values[DIMENSIONS];
     // Need to represent the probability that this is associated with a specific cluster
-    double clusters[NUMCLUSTER];
+    float clusters[NUMCLUSTER];
 } FuzzyPoint;
 /**
  * Initialize a point's probabilities to random. See fuzzyMean.h to initialize data or clusters with those helper functions.
@@ -32,11 +32,11 @@ void initProb(FuzzyPoint *x){
 
     bool generating = true;
     int i = 0;
-    double tempProb = 0.0f;
+    float tempProb = 0.0f;
     while(generating){
         // The prime number chosen can be improved
         // But this would need to be done empirically
-        double prob = rand() % 200;
+        float prob = rand() % 200;
         prob /= 1000;
         if(tempProb + prob > 1){
             x->clusters[i] += 1-tempProb;
@@ -116,13 +116,13 @@ void testProbability(FuzzyPoint x){
  * @param y a fuzzyPoint
  */
 double distance(FuzzyPoint x, FuzzyPoint y){
-    double sum = 0.0f;
+    float sum = 0.0f;
     for(int i = 0 ; i < DIMENSIONS ; i++){
-        double temp = (x.values[i] - y.values[i]);
+        float temp = (x.values[i] - y.values[i]);
         sum += temp * temp;
     }
     // printf("distance %f \n", sqrt(sum));
-    return sqrt(sum);
+    return sqrtf(sum);
 }
 
 /**
