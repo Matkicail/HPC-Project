@@ -18,6 +18,7 @@ __device__ float pointDistanceGPU(Point x, Point y)
      return sqrtf(dist);
 }
 
+//0-16
 __global__ void calculateCentres(Point *data, Point *cluster)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -46,25 +47,39 @@ __global__ void calculateCentres(Point *data, Point *cluster)
             cluster[tid].values[i] = sum[i] / count;
 }
 
+//65 000
 __global__ void assignCluster(Point *data, Point *kPoints, int dataSize, int clusterSize)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    int numAssigned = dataSize / blockDim.x;
 
-    for(int i = 0 ; i < numAssigned; i++)
+    float distance = FLT_MAX;
+    for(int j = 0 ; j < NUMCLUSTER ; j++)
     {
-        //Get the position to operate on
-        int pos = tid + i * blockDim.x;
-
-        float distance = FLT_MAX;
-        for(int j = 0 ; j < NUMCLUSTER ; j++)
+        float tempDist = pointDistanceGPU(kPoints[j], data[tid]);
+        if(tempDist < distance)
         {
-            float tempDist = pointDistanceGPU(kPoints[j], data[pos]);
-            if(tempDist < distance)
-            {
-                distance = tempDist;
-                data[pos].cluster = kPoints[j].cluster;
-            }
+            distance = tempDist;
+            data[tid].cluster = kPoints[j].cluster;
         }
     }
 }
+
+    // int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    // int numAssigned = dataSize / blockDim.x;
+
+    // for(int i = 0 ; i < numAssigned; i++)
+    // {
+    //     //Get the position to operate on
+    //     int pos = tid + i * blockDim.x;
+
+    //     float distance = FLT_MAX;
+    //     for(int j = 0 ; j < NUMCLUSTER ; j++)
+    //     {
+    //         float tempDist = pointDistanceGPU(kPoints[j], data[pos]);
+    //         if(tempDist < distance)
+    //         {
+    //             distance = tempDist;
+    //             data[pos].cluster = kPoints[j].cluster;
+    //         }
+    //     }
+    // }

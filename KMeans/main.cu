@@ -6,13 +6,14 @@
 #include "./Headers/kMeans.h"
 #include "./Headers/kMeans.cuh"
 #include "./Misc/Logger.h"
-
+#include <time.h>
+#include <omp.h>
 // Includes CUDA
 #include <cuda_runtime.h>
 #include <helper_functions.h>    // includes cuda.h and cuda_runtime_api.h
 #include <helper_cuda.h>         // helper functions for CUDA error check
 
-#define NUMTHREADS 16
+#define NUMTHREADS 1024
 
 void validateData(Point *data1, Point *data2, int size)
 {
@@ -51,9 +52,13 @@ int main()
     initDataPoints(data);
     memcpy(dataTemp, data, NUMPOINTS * sizeof(Point));
 
+    double startCpu = omp_get_wtime();
+ 
     //Serial
     for(int i = 0; i < ITERATIONS; i++)
-        printCentroids(kPointsTemp);
+        assignDataCluster(kPointsTemp, dataTemp);
+
+    printf("%f Seconds\n", omp_get_wtime() - startCpu);
 
     //Create memory on GPU
     Point *deviceKPoints, *deviceData;
@@ -80,6 +85,11 @@ int main()
     dim3 threadsCluster(threadsCountCluster, 1, 1);
     dim3 blocksCluster(blocksCountDataCluster, 1, 1);
 
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop, 0);
+
+    cudaEventRecord(start);
     //Launch kernel
     for(int i = 0; i < ITERATIONS; i++)
     {
@@ -89,18 +99,16 @@ int main()
     
         calculateCentres<<<blocksCluster, threadsCluster>>>(deviceData, deviceKPoints);
         getLastCudaError("Kernel execution failed");
-        checkCudaErrors(cudaDeviceSynchronize());
+        cudaDeviceSynchronize();
     }
-
-    //printDataPoints(data, NUMPOINTS);
-    //printDataPoints(dataTemp, NUMPOINTS);
-
-    // printCentroids(kPoints);
-    // printCentroids(kPointsTemp);
-
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
+    printf("Time for kernel ms: %f\n", milliseconds);
+    
     checkCudaErrors(cudaMemcpy(data, deviceData, NUMPOINTS * sizeof(Point), cudaMemcpyDeviceToHost));
     checkCudaErrors(cudaMemcpy(kPoints, deviceKPoints, NUMCLUSTER * sizeof(Point), cudaMemcpyDeviceToHost));
-
 
     validateData(data, dataTemp, NUMPOINTS);
     validateData(kPoints, kPointsTemp, NUMCLUSTER);

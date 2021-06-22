@@ -7,7 +7,7 @@ main:
 	gcc main.c -o main $(DEP)
 
 cuda:
-	nvcc -I "./inc" main.cu -o cuda
+	nvcc -Xcompiler -fopenmp -I "./inc" main.cu -o cuda 
 
 # Determine if windows or linux
 ifeq ($(OS),Windows_NT)
