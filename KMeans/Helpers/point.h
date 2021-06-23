@@ -7,8 +7,8 @@
 #define POINT
 
 // compiler directives
-#define DIMENSIONS 2
-#define NUMCLUSTER 64
+#define DIMENSIONS 1 << 1
+#define NUMCLUSTER (1 << 5)
 #define UPPER 10000
 #define LOWER -10000
 
@@ -17,6 +17,7 @@ typedef struct Points{
     // Chose to make this a float, we can change it to a double but don't think it is too important.
     float values[DIMENSIONS];
     int cluster;
+    int clusterCount;
 } Point;
 
 void printtabs(int level)
@@ -76,7 +77,7 @@ float pointDistance(Point x, Point y)
         float temp = (x.values[i] - y.values[i]);
         dist += temp * temp;
     }
-    return pow(dist, 1.0 / 2);
+    return sqrtf(dist);
 }
 
 /**

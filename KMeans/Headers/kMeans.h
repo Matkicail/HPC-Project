@@ -8,7 +8,7 @@
 #define kMEANS
 
 // basically given a malloced array init the points for clustering
-#define NUMPOINTS (1<<16)
+#define NUMPOINTS (1<<22)
 #define ITERATIONS 10
 
 /**
@@ -100,6 +100,20 @@ void initDataPoints(Point *data)
 {
     for (int i = 0; i < NUMPOINTS; i++)
         initPoint(&data[i]);
+}
+
+/**
+ * For initializing all datapoints, same as initKPoints but doesn't set the cluster assignment
+ * @param data array of points to be initialized
+ */
+void initDataPointsToValue(Point *data, int dataSize, float value)
+{
+    for (int i = 0; i < dataSize; i++)
+    {
+        initPoint(&data[i]);
+        for (int j = 0; j < DIMENSIONS; j++)
+            data[i].values[j] = value;
+    }
 }
 
 /**
