@@ -8,7 +8,7 @@
 #define FUZZYPOINT
 
 #define DIMENSIONS (1 << 1)
-#define NUMCLUSTER (1 << 6)
+#define NUMCLUSTER (1 << 3)
 #define UPPER 1000000
 #define LOWER 0
 #define EPSILON 0.05
@@ -19,6 +19,9 @@ typedef struct FuzzyPoints{
     float values[DIMENSIONS];
     // Need to represent the probability that this is associated with a specific cluster
     float clusters[NUMCLUSTER];
+    float clusterProbSum[DIMENSIONS];
+    float clusterPointSum[DIMENSIONS];
+
 } FuzzyPoint;
 /**
  * Initialize a point's probabilities to random. See fuzzyMean.h to initialize data or clusters with those helper functions.

@@ -8,9 +8,9 @@
 #define fuzzyMEANS 2
 #define FUZZINESS 4
 // do not go above 
-#define NUMPOINTS (1 << 17)
+#define NUMPOINTS (1 << 8)
 // Note that this is one
-#define ITERATIONS 1
+#define ITERATIONS 10
 
 /**
  * Calculate the updated version of centroids based on the data points and their association
@@ -66,6 +66,8 @@ void updateDataAssignment(FuzzyPoint *centroids, FuzzyPoint *data){
         }
     }
 }
+
+
 /**
  * Highest level of data initialisation.
  * @param data set of FuzzyPoints that will be data that will now all be initialized

@@ -29,27 +29,6 @@ echo SLURM: job name is $SLURM_JOB_NAME
 echo ------------------------------------------------------
 # cd $SLURM_SUBMIT_DIR
 echo 'Only running a timing'
-./fuzzyCuda1 &
-echo 'Jared made me'
-./fuzzyCuda2 &
-echo 'Jared made me'
-./fuzzyCuda3 &
-echo 'Jared made me'
-./fuzzyCuda4 &
-echo 'Jared made me'
-./fuzzyCuda5 &
-echo 'Jared made me'
-./fuzzyCuda10 &
-echo 'Jared made me'
-./fuzzyCuda11 &
-echo 'Jared made me'
-./fuzzyCuda12 &
-echo 'Jared made me'
-./fuzzyCuda13 &
-echo 'Jared made me'
-./fuzzyCuda14 &
-echo 'Jared made me'
-./fuzzyCuda15
+mpiexec -n 2 ./fuzzyMPIMain
 
-wait
 
