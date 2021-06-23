@@ -15,9 +15,17 @@ int main(){
     initAllFuzzyPoints(data);
     printAllFuzzyPoints(data);
     initCentroids(centroids);
-    // calculateCentroids(centroids, data);
+    for(int i = 0 ; i < NUMCLUSTER ; i++){
+        initValues(&centroids[i]);
+    }
+    for(int i = 0 ; i < 100 ; i++){
+        calculateCentroids(centroids, data);
+        // printCentroids(centroids);
+        updateDataAssignment(centroids,data);
+    }
+    printf("CALCULATION FINISHED \n");
     printCentroids(centroids);
-
+    printAllFuzzyPoints(data);
     // SERIAL CODE SEGMENT
 
     // PARALLEL CODE SEGMENT
