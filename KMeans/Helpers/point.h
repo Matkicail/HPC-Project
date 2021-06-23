@@ -77,7 +77,7 @@ float pointDistance(Point x, Point y)
         float temp = (x.values[i] - y.values[i]);
         dist += temp * temp;
     }
-    return pow(dist, 1.0 / 2);
+    return sqrtf(dist);
 }
 
 /**

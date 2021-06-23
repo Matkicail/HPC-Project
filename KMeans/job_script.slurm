@@ -16,8 +16,6 @@
 # specify the filename for stderr
 #SBATCH -e /home-mscluster/jharrisdewey/output.%N.%j.err
 
-#SBATCH -w mscluster14
-
 echo ------------------------------------------------------
 echo -n 'Job is running on node ' $SLURM_JOB_NODELIST
 echo ------------------------------------------------------

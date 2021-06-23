@@ -4,16 +4,30 @@
 #include <mpi.h>
 #include "./Helpers/point.h"
 #include "./Headers/kMeans.h"
+#include "./Misc/Logger.h"
 
-float pointDistanceMPI(Point x, Point y)
+void validateData(Point *data1, Point *data2, int size, float eps)
 {
-     float dist = 0;
-     for (int i = 0; i < DIMENSIONS; i++)
-     {
-         float temp = (x.values[i] - y.values[i]);
-         dist += temp * temp;
-     }
-     return sqrtf(dist);
+    for(int i = 0; i < size; i++)
+    {
+        if(data1[i].cluster != data2[i].cluster)
+        {
+            LogError("Error: Clusters are not equal");
+            return;
+        }
+
+        for(int j = 0; j < DIMENSIONS; j++)
+        {
+            if(data1[i].values[j] - data2[i].values[j] > eps)
+            {
+                LogError("Error: Values are not equal");
+                printf("%f != %f\n", data1[i].values[j], data2[i].values[j]);
+                return;
+            }
+        }
+    }
+
+    LogPass("Test Successful");
 }
 
 void calculateCentresMPI(Point *data, Point *kPoints, int pointLength)
@@ -24,9 +38,10 @@ void calculateCentresMPI(Point *data, Point *kPoints, int pointLength)
     //Storing counts of each cluster to average
     for (int i = 0; i < NUMCLUSTER; i++)
     {
-        tempPoints[i].cluster = kPoints[i].cluster;
         for (int j = 0; j < DIMENSIONS; j++)
             tempPoints[i].values[j] = 0;
+
+        tempPoints[i].clusterCount = 0;
     }
 
     //Calculate the sum of the points to get the average
@@ -75,21 +90,26 @@ int main(int argc, char *argv[])
 	MPI_Init(&argc,&argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &nproces);
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-	Point *kPoints, *data, *dataTemp, *tempKPoints;
-
+	Point *kPoints, *data, *dataTemp, *tempKPoints, *serialKPoints, *serialData;
 
 	int pointLength = (NUMPOINTS/nproces);
 	kPoints = (Point *)malloc(NUMCLUSTER * sizeof(Point));
 	tempKPoints = (Point *)malloc(NUMCLUSTER * sizeof(Point));
 	initDataPointsToValue(tempKPoints, NUMCLUSTER, 0);
 
-
 	//If master thread, create all points
 	if(myrank == 0)
 	{
-		initKPoints(kPoints);
+		//For serial validation
+		serialKPoints = (Point *)malloc(NUMCLUSTER * sizeof(Point));
+		serialData = (Point *)malloc(NUMPOINTS * sizeof(Point));
+
 		dataTemp = (Point *)malloc(NUMPOINTS * sizeof(Point));
+		initKPoints(kPoints);
 	    initDataPoints(dataTemp);
+
+    	memcpy(serialKPoints, kPoints, NUMCLUSTER * sizeof(Point));
+    	memcpy(serialData, dataTemp, NUMPOINTS * sizeof(Point));
 	}
 
 	data = (Point *)malloc(pointLength * sizeof(Point));
@@ -115,10 +135,9 @@ int main(int argc, char *argv[])
 				for(int k = 0; k < NUMCLUSTER; k++)
 				{
 					for(int m = 0; m < DIMENSIONS; m++)
-					{
 						kPoints[k].values[m] += tempKPoints[k].values[m];
-						kPoints[k].clusterCount += tempKPoints[k].clusterCount;
-					}
+
+					kPoints[k].clusterCount += tempKPoints[k].clusterCount;
 				}
 			}
 		}
@@ -134,10 +153,12 @@ int main(int argc, char *argv[])
 		MPI_Bcast(kPoints, NUMCLUSTER * sizeof(Point), MPI_CHAR, 0, MPI_COMM_WORLD);
 	}
 
-	if (myrank == 0)
+	if(myrank == 0)
 	{
-		printCentroids(kPoints);
+		assignDataCluster(serialKPoints, serialData);
+    	validateData(kPoints, serialKPoints, NUMCLUSTER, 1);
 	}
+
 
     MPI_Finalize();
     return 0;
