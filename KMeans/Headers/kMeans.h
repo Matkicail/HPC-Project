@@ -8,7 +8,7 @@
 #define kMEANS
 
 // basically given a malloced array init the points for clustering
-#define NUMPOINTS (1<<18)
+#define NUMPOINTS (1<<20)
 #define ITERATIONS 10
 
 /**

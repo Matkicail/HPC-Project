@@ -145,11 +145,11 @@ int main(int argc, char *argv[]){
 		// printAllFuzzyPoints(data);
 		printf("Numpoints: %d, Numcluster: %d, Dimensions: %d \n", NUMPOINTS, NUMCLUSTER, DIMENSIONS);
 		printf("Total time taken %f \n",time);
-		// for(int i = 0 ; i < ITERATIONS ; i++){
-		// 	updateDataAssignment(serialKPoints, serialData);
-		// 	calculateCentroids(serialKPoints, serialData);
-		// }
-    	// validateData(kPoints, serialKPoints, NUMCLUSTER, 1);
+		for(int i = 0 ; i < ITERATIONS ; i++){
+			updateDataAssignment(serialKPoints, serialData);
+			calculateCentroids(serialKPoints, serialData);
+		}
+    	validateData(kPoints, serialKPoints, NUMCLUSTER, 10);
 		printf("\n##########################################################################################\n");
 	}
 

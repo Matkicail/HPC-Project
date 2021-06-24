@@ -29,6 +29,8 @@ int main()
 
     free(kPoints);
     free(data);
+
+    printf("successful\n\n");
     return 0;
 }
 

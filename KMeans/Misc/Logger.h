@@ -3,9 +3,9 @@
 
 void LogError(const char* message)
 {
-    printf("\033[1;31m");
+    //printf("\033[1;31m");
     printf("%s\n", message);
-    printf("\033[0m");
+    //printf("\033[0m");
 }
 
 void LogInfo(const char* message)
@@ -17,9 +17,9 @@ void LogInfo(const char* message)
 
 void LogPass(const char* message)
 {
-    printf("\033[1;32m");
+    //printf("\033[1;32m");
     printf("%s\n\n", message);
-    printf("\033[0m");
+    //printf("\033[0m");
 }
 
 #endif

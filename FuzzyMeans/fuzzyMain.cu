@@ -122,7 +122,7 @@ int main()
     checkCudaErrors(cudaMemcpy(kPoints, deviceKPoints, NUMCLUSTER * sizeof(FuzzyPoint), cudaMemcpyDeviceToHost));
     
     // validateData(data, dataTemp, NUMPOINTS);
-    // validateData(kPoints, kPointsTemp, NUMCLUSTER);
+    validateData(kPoints, kPointsTemp, NUMCLUSTER);
     printf("\n####################################################################################################\n");
     cudaFree(deviceData);
     cudaFree(deviceKPoints);

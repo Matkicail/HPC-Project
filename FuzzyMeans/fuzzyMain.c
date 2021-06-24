@@ -13,19 +13,19 @@ int main(){
     FuzzyPoint *centroids = (FuzzyPoint *)malloc(NUMCLUSTER * sizeof(FuzzyPoint));
     FuzzyPoint *data = (FuzzyPoint *)malloc(NUMPOINTS * sizeof(FuzzyPoint));
     initAllFuzzyPoints(data);
-    printAllFuzzyPoints(data);
+    //printAllFuzzyPoints(data);
     initCentroids(centroids);
     for(int i = 0 ; i < NUMCLUSTER ; i++){
         initValues(&centroids[i]);
     }
-    for(int i = 0 ; i < 100 ; i++){
+    for(int i = 0 ; i < ITERATIONS ; i++){
         calculateCentroids(centroids, data);
         // printCentroids(centroids);
         updateDataAssignment(centroids,data);
     }
     printf("CALCULATION FINISHED \n");
-    printCentroids(centroids);
-    printAllFuzzyPoints(data);
+    // printCentroids(centroids);
+    // printAllFuzzyPoints(data);
     // SERIAL CODE SEGMENT
 
     // PARALLEL CODE SEGMENT

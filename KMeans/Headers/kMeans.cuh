@@ -63,23 +63,3 @@ __global__ void assignCluster(Point *data, Point *kPoints, int dataSize, int clu
         }
     }
 }
-
-    // int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    // int numAssigned = dataSize / blockDim.x;
-
-    // for(int i = 0 ; i < numAssigned; i++)
-    // {
-    //     //Get the position to operate on
-    //     int pos = tid + i * blockDim.x;
-
-    //     float distance = FLT_MAX;
-    //     for(int j = 0 ; j < NUMCLUSTER ; j++)
-    //     {
-    //         float tempDist = pointDistanceGPU(kPoints[j], data[pos]);
-    //         if(tempDist < distance)
-    //         {
-    //             distance = tempDist;
-    //             data[pos].cluster = kPoints[j].cluster;
-    //         }
-    //     }
-    // }

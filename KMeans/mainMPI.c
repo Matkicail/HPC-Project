@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 		for (int i = 0; i < ITERATIONS; i++)
 			assignDataCluster(serialKPoints, serialData);
 		
-    	validateData(kPoints, serialKPoints, NUMCLUSTER, 1);
+    	validateData(kPoints, serialKPoints, NUMCLUSTER, 10);
 	}
 
 

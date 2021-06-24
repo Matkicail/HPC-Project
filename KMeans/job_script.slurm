@@ -2,9 +2,9 @@
 # specify a partition
 #SBATCH -p batch
 # specify number of nodes
-#SBATCH -N 1
+#SBATCH -N 2
 # specify number of cores
-#SBATCH -n 8
+#SBATCH -n 16
 # specify memory pool for all cores
 ##SBATCH --mem 10
 # specify the wall clock time limit for the job
@@ -28,4 +28,6 @@ echo SLURM: job name is $SLURM_JOB_NAME
 echo ------------------------------------------------------
 
 #cd $SLURM_SUBMIT_DIR
-mpirun -n 8 ./mpi
+./main
+./cuda
+mpirun -n 16 ./mpi

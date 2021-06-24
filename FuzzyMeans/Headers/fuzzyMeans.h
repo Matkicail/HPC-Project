@@ -8,7 +8,7 @@
 #define fuzzyMEANS 2
 #define FUZZINESS 4
 // do not go above 
-#define NUMPOINTS (1 << 24)
+#define NUMPOINTS (1 << 20)
 // Note that this is one
 #define ITERATIONS 10
 
