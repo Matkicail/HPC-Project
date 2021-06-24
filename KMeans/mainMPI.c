@@ -18,7 +18,7 @@ void validateData(Point *data1, Point *data2, int size, float eps)
 
         for(int j = 0; j < DIMENSIONS; j++)
         {
-            if(data1[i].values[j] - data2[i].values[j] > eps)
+            if(fabsf(data1[i].values[j] - data2[i].values[j]) > eps)
             {
                 LogError("Error: Values are not equal");
                 printf("%f != %f\n", data1[i].values[j], data2[i].values[j]);
@@ -113,13 +113,14 @@ int main(int argc, char *argv[])
 	}
 
 	data = (Point *)malloc(pointLength * sizeof(Point));
-	initDataPointsToValue(data, pointLength, 0);
+	// initDataPointsToValue(data, pointLength, 0);
 
 	//Broadcase clusters and scatter points
 	MPI_Bcast(kPoints, NUMCLUSTER * sizeof(Point), MPI_CHAR, 0, MPI_COMM_WORLD);
     MPI_Scatter(dataTemp, pointLength * sizeof(Point), MPI_CHAR, data, pointLength * sizeof(Point), MPI_CHAR, 0, MPI_COMM_WORLD);
-
-	for(int i = 0; i < 1; i++)
+	
+	double time = MPI_Wtime(), max;
+	for(int i = 0; i < ITERATIONS; i++)
 	{
 		assignClusterMPI(data, kPoints, pointLength);
 		calculateCentresMPI(data, kPoints, pointLength);
@@ -152,10 +153,15 @@ int main(int argc, char *argv[])
 		//Send updated values
 		MPI_Bcast(kPoints, NUMCLUSTER * sizeof(Point), MPI_CHAR, 0, MPI_COMM_WORLD);
 	}
+	time = MPI_Wtime() - time;
+	MPI_Reduce(&time, &max, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	if(myrank == 0)
 	{
-		assignDataCluster(serialKPoints, serialData);
+		printf("Total Time: %f\n", max / nproces);
+		for (int i = 0; i < ITERATIONS; i++)
+			assignDataCluster(serialKPoints, serialData);
+		
     	validateData(kPoints, serialKPoints, NUMCLUSTER, 1);
 	}
 
