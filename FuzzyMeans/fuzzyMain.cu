@@ -59,6 +59,7 @@ int main()
         updateDataAssignment(kPointsTemp,dataTemp);
         calculateCentroids(kPointsTemp, dataTemp);
     }
+    printf("############################################################################################\n");
     printf("Numpoints: %d, Numcluster: %d, Dimensions: %d \n", NUMPOINTS, NUMCLUSTER, DIMENSIONS);
     printf ("Time for the serial code: %f SECONDS\n", omp_get_wtime() - startSerial);
     // //Create memory on GPU

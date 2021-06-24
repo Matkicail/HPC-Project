@@ -2,19 +2,19 @@
 # specify a partition
 #SBATCH -p batch
 # specify number of nodes
-#SBATCH -N 1
+#SBATCH -N 16
 # specify number of cores
-#SBATCH -n 2
+#SBATCH -n 128
 # specify memory pool for all cores
 ##SBATCH --mem 10
 # specify the wall clock time limit for the job
-#SBATCH -t 02:00:00
+#SBATCH -t 09:00:00
 # specify the job name
 #SBATCH -J FuzzyClustering
 # specify the filename to be used for writing output
-#SBATCH -o /home-mscluster/mkruger/tempFuzzyMeans1669326.%N.%j.out
+#SBATCH -o /home-mscluster/mkruger/openMPI1669326.%N.%j.out
 # specify the filename for stderr
-#SBATCH -e /home-mscluster/mkruger/tempFuzzyMeans1669326.%N.%j.err
+#SBATCH -e /home-mscluster/mkruger/openMPI1669326.%N.%j.err
 
 
 echo ------------------------------------------------------
@@ -29,6 +29,18 @@ echo SLURM: job name is $SLURM_JOB_NAME
 echo ------------------------------------------------------
 # cd $SLURM_SUBMIT_DIR
 echo 'Only running a timing'
-mpiexec -n 2 ./fuzzyMPIMain
-
-
+echo "2 cores"
+mpirun -n 2 ./fuzzyMPIMain1
+echo "4 cores"
+mpirun -n 4 ./fuzzyMPIMain1
+echo "8 cores"
+mpirun -n 8 ./fuzzyMPIMain1
+echo "16 cores"
+mpirun -n 16 ./fuzzyMPIMain1
+echo "32 cores"
+mpirun -n 32 ./fuzzyMPIMain1
+echo "64 cores"
+mpirun -n 64 ./fuzzyMPIMain1
+echo "128 cores"
+mpirun -n 128 ./fuzzyMPIMain1
+# mpirun -n 256 ./fuzzyMPIMain1
