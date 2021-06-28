@@ -12,9 +12,9 @@
 # specify the job name
 #SBATCH -J KMeansClustering
 # specify the filename to be used for writing output
-#SBATCH -o /home-mscluster/jharrisdewey/output.%N.%j.out
+#SBATCH -o /home-mscluster/<NAME>/output.%N.%j.out
 # specify the filename for stderr
-#SBATCH -e /home-mscluster/jharrisdewey/output.%N.%j.err
+#SBATCH -e /home-mscluster/<NAME>/output.%N.%j.err
 
 echo ------------------------------------------------------
 echo -n 'Job is running on node ' $SLURM_JOB_NODELIST

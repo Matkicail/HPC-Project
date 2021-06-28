@@ -12,9 +12,9 @@
 # specify the job name
 #SBATCH -J FuzzyClustering
 # specify the filename to be used for writing output
-#SBATCH -o /home-mscluster/jharrisdewey/openMPI1669326.%N.%j.out
+#SBATCH -o /home-mscluster/<NAME>/openMPI1669326.%N.%j.out
 # specify the filename for stderr
-#SBATCH -e /home-mscluster/jharrisdewey/openMPI1669326.%N.%j.err
+#SBATCH -e /home-mscluster/<NAME>/openMPI1669326.%N.%j.err
 
 echo ------------------------------------------------------
 echo -n 'Job is running on node ' $SLURM_JOB_NODELIST
