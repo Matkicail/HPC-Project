@@ -1,10 +1,8 @@
 # HPC-Project
 HPC-Project
 
-Basically serial is finished.
-I made sure to keep it open to being parallelized with CUDA.
-I recommend reading it from point to kMeans to main. Main itself does not mean much so don't pay too much attention to it. It serves solely as a driver.
-
-Waiting for further direction to see how MPI & CUDA Will play out.
-
-Have begun on fuzzy c-means clustering
+The project's code segments are fairly well commented. 
+This is largely only intended to be used as a reference.
+The focus of this project was to showcase the performance differnces in Fuzzy C-Means clustering and K-Means clustering which made use of OpenMPI and CUDA in each implementation.
+Thus, comparing the benefits of a chosen framework.
+It should be noted, this made use of global memory in the case of CUDA which is sub-optimal for this problem but served the purpose of a basic CUDA implementation.
